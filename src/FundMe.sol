@@ -11,11 +11,11 @@ contract FundMe {
 
     mapping(address => uint256) public addressToAmountFunded;
     address[] public funders;
-   
-    address public immutable i_owner;    
+
+    address public immutable i_owner;
     uint256 public constant MINIMUM_USD = 5 * 10 ** 18;
     AggregatorV3Interface private s_priceFeed;
-    
+
     constructor(address priceFeed) {
         i_owner = msg.sender;
         s_priceFeed = AggregatorV3Interface(priceFeed);
@@ -28,7 +28,7 @@ contract FundMe {
         funders.push(msg.sender);
     }
 
-    function getVersion() public view returns (uint256) {        
+    function getVersion() public view returns (uint256) {
         return s_priceFeed.version();
     }
 
@@ -43,7 +43,7 @@ contract FundMe {
             addressToAmountFunded[funder] = 0;
         }
         funders = new address[](0);
-       
+
         (bool callSuccess,) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess, "Call failed");
     }
