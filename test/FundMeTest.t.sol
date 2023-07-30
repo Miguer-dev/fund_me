@@ -65,7 +65,7 @@ contract FundMeTest is Test {
     function testWithdrawFromOneFunder() public funded {
         uint256 startingOwnerBalance = fundMe.getOwner().balance;
         uint256 startingFundMeBalance = address(fundMe).balance;
-        
+
         vm.prank(fundMe.getOwner());
         fundMe.withdraw(); //In Anvil gas price is 0, can use vm.txGasPrice(GAS_PRICE) to set a gas price for next operation.
 
@@ -88,6 +88,27 @@ contract FundMeTest is Test {
 
         vm.startPrank(fundMe.getOwner());
         fundMe.withdraw();
+        vm.stopPrank();
+
+        uint256 endingOwnerBalance = fundMe.getOwner().balance;
+        uint256 endingFundMeBalance = address(fundMe).balance;
+        assert(endingFundMeBalance == 0);
+        assert(endingOwnerBalance == startingOwnerBalance + startingFundMeBalance);
+    }
+
+    function testWithdrawFromMultipleFundersCheaper() public funded {
+        uint160 numberOfFunders = 10;
+        uint160 startingFundersIndex = 1; // start in 1 for not use address(0), 160 is the size of an address
+        for (uint160 i = startingFundersIndex; i < numberOfFunders; i++) {
+            hoax(address(i), STARTTING_BALANCE); //prank + deal
+            fundMe.fund{value: SEND_VALUE}();
+        }
+
+        uint256 startingOwnerBalance = fundMe.getOwner().balance;
+        uint256 startingFundMeBalance = address(fundMe).balance;
+
+        vm.startPrank(fundMe.getOwner());
+        fundMe.cheaperWithdraw();
         vm.stopPrank();
 
         uint256 endingOwnerBalance = fundMe.getOwner().balance;
