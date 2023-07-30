@@ -3,18 +3,24 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import {Script} from "forge-std/Script.sol";
+import {MockV3Aggregator} from "../test/mocks/MockV3Aggregator.sol";
 
-contract HelperConfig {
+contract HelperConfig is Script {
     NetworkConfig public activeNetworkConfig;
+
+    uint8 public constant DECIMALS = 8;
+    int256 public constant INITIAL_PRICE = 2000e8;
+    uint32 public constant CHAINID_SEPOLIA = 11155111;
+    uint8 public constant CHAINID_ETHEREUM = 1;
 
     struct NetworkConfig {
         address priceFeed;
     }
 
     constructor() {
-        if (block.chainid == 11155111) activeNetworkConfig = getSepoliaEthConfig();
-        else if (block.chainid == 1) activeNetworkConfig = getEthereumEthConfig();
-        else activeNetworkConfig = getAnvilEthConfig();
+        if (block.chainid == CHAINID_SEPOLIA) activeNetworkConfig = getSepoliaEthConfig();
+        else if (block.chainid == CHAINID_ETHEREUM) activeNetworkConfig = getEthereumEthConfig();
+        else activeNetworkConfig = getOrCreateTestChainEthConfig();
     }
 
     function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
@@ -27,8 +33,14 @@ contract HelperConfig {
         return sepoliaConfig;
     }
 
-    function getAnvilEthConfig() public pure returns (NetworkConfig memory) {
-        NetworkConfig memory anvilConfig = NetworkConfig(address(0));
+    function getOrCreateTestChainEthConfig() public returns (NetworkConfig memory) {
+        if (activeNetworkConfig.priceFeed != address(0)) return activeNetworkConfig;
+
+        vm.startBroadcast();
+        MockV3Aggregator mockV3Aggregator = new MockV3Aggregator( DECIMALS, INITIAL_PRICE );
+        vm.stopBroadcast();
+
+        NetworkConfig memory anvilConfig = NetworkConfig(address(mockV3Aggregator));
         return anvilConfig;
     }
 }
