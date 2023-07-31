@@ -10,7 +10,7 @@ contract HelperConfig is Script {
 
     uint8 public constant DECIMALS = 8;
     int256 public constant INITIAL_PRICE = 2000e8;
-    uint32 public constant CHAINID_SEPOLIA = 11155111;
+    uint32 public constant CHAINID_GOERLI = 5;
     uint8 public constant CHAINID_ETHEREUM = 1;
 
     struct NetworkConfig {
@@ -18,19 +18,19 @@ contract HelperConfig is Script {
     }
 
     constructor() {
-        if (block.chainid == CHAINID_SEPOLIA) activeNetworkConfig = getSepoliaEthConfig();
+        if (block.chainid == CHAINID_GOERLI) activeNetworkConfig = getGoerliEthConfig();
         else if (block.chainid == CHAINID_ETHEREUM) activeNetworkConfig = getEthereumEthConfig();
         else activeNetworkConfig = getOrCreateTestChainEthConfig();
     }
 
-    function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
-        NetworkConfig memory sepoliaConfig = NetworkConfig(0x694AA1769357215DE4FAC081bf1f309aDC325306);
-        return sepoliaConfig;
+    function getGoerliEthConfig() public pure returns (NetworkConfig memory) {
+        NetworkConfig memory goerliConfig = NetworkConfig(0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e);
+        return goerliConfig;
     }
 
     function getEthereumEthConfig() public pure returns (NetworkConfig memory) {
-        NetworkConfig memory sepoliaConfig = NetworkConfig(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
-        return sepoliaConfig;
+        NetworkConfig memory ethereumConfig = NetworkConfig(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+        return ethereumConfig;
     }
 
     function getOrCreateTestChainEthConfig() public returns (NetworkConfig memory) {
